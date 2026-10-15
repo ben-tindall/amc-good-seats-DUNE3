@@ -48,10 +48,31 @@ async function sendEmail(subject, html) {
 }
 
 async function getAvailableDates(page) {
-  await page.goto(THEATER_URL,{waitUntil:'networkidle2',timeout:60000});
-  await sleep(2000);
-  return page.evaluate(() => [...document.querySelectorAll('select[name="date"] option')]
-    .map(o=>o.value).filter(v=>/^\d{4}-\d{2}-\d{2}$/.test(v)));
+  const response = await page.goto(THEATER_URL, {
+    waitUntil: "networkidle2",
+    timeout: 60000
+  });
+
+  await sleep(5000);
+
+  const diagnostic = await page.evaluate(() => ({
+    title: document.title,
+    url: location.href,
+    bodyText: document.body.innerText.slice(0, 1200),
+    dateSelectors: document.querySelectorAll('select[name="date"] option').length,
+    dateElements: [...document.querySelectorAll('[data-date], input[type="date"], time')]
+      .slice(0, 20)
+      .map(el => el.outerHTML.slice(0, 200))
+  }));
+
+  log(`HTTP status: ${response?.status()}`);
+  log(`Page diagnostic: ${JSON.stringify(diagnostic, null, 2)}`);
+
+  return page.evaluate(() =>
+    [...document.querySelectorAll('select[name="date"] option')]
+      .map(o => o.value)
+      .filter(v => /^\d{4}-\d{2}-\d{2}$/.test(v))
+  );
 }
 
 async function getShowtimes(page,date) {
