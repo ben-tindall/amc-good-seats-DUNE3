@@ -1,5 +1,4 @@
 
-#!/usr/bin/env node
 /* AMC Lincoln Square IMAX 70mm Dune: Part Three seat watcher */
 const puppeteer = require('puppeteer-extra');
 const StealthPlugin = require('puppeteer-extra-plugin-stealth');
